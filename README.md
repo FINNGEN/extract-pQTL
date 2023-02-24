@@ -3,7 +3,7 @@ Very simple code to extract pQTL results, usage
  ```
  bash extract-pQTL.sh {somascan, olink, decode} probs_{somascan, olink, decode}.txt $YOUR_REGEION $outputDir
  or the same in parallel with error checking
- extract-pQTL.sh {somascan, olink, decode} probs_{somascan, olink, decode}.txt $YOUR_REGEION $outputDir
+ extract-pQTL_paral.sh {somascan, olink, decode} probs_{somascan, olink, decode}.txt $YOUR_REGEION $outputDir
  ```
 
 YOUR\_REGION is a text format with each line the region interested "CHR POSstart POSend"
