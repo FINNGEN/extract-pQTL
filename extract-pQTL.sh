@@ -43,21 +43,37 @@ fi
 export GCS_OAUTH_TOKEN=`gcloud auth print-access-token`
 readarray -t traits < $probList
 
-gsutil cat ${inputSource}_${traits[0]}.txt.gz | zcat | head -n 1 > $outDir/headers.txt
+gsutil cat ${inputSource}_${traits[0]}.txt.gz | zcat | head -n 1 > $outDir/headers
 
-echo "Start to extract ${#traits[@]} probes"
+N=${#traits[@]}
+echo "Start to extract $N probes"
 template=$region
 i=0
 for trait in "${traits[@]}"; do
     ((i=i+1))
     if [ ! -f "$outDir/$trait.txt" ] || [ ! -s "$outDir/$trait.txt" ]; then
-        echo "$i: $trait"
+        echo "$i/$N: $trait"
+
+        gsfile="${inputSource}_${trait}.txt.gz"
+        gsutil -q stat $gsfile
+        if [ $? -ne 0 ]; then
+            echo "  error: $gsfile doesn't exist, skipped"
+            continue
+        fi
+
+        gsutil -q stat "$gsfile.tbi"
+        if [ $? -ne 0 ]; then
+            echo "  error: $gsfile.tbi doesn't exist, skipped"
+            continue
+        fi
+
         while true; do
-            tabix -R $template ${inputSource}_${trait}.txt.gz > $outDir/$trait.txt
+            tabix -R $template $gsfile > $outDir/$trait.txt
             if [ $? -eq 0 ]; then
                 break
             else
-                echo "  error re-run.."
+                echo "  error: re-run..."
+                export GCS_OAUTH_TOKEN=`gcloud auth print-access-token`
             fi
         done
     else
