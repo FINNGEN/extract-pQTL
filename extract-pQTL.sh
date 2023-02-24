@@ -3,6 +3,8 @@
 #
 #          FILE: extractProteomics.sh
 #
+#         USAGE: ./extract.sh
+#
 #   DESCRIPTION: 
 #
 #       OPTIONS: ---
@@ -50,7 +52,14 @@ for trait in "${traits[@]}"; do
     ((i=i+1))
     if [ ! -f "$outDir/$trait.txt" ] || [ ! -s "$outDir/$trait.txt" ]; then
         echo "$i: $trait"
-        tabix -R $template ${inputSource}_${trait}.txt.gz > $outDir/$trait.txt
+        while true; do
+            tabix -R $template ${inputSource}_${trait}.txt.gz > $outDir/$trait.txt
+            if [ $? -eq 0 ]; then
+                break
+            else
+                echo "  error re-run.."
+            fi
+        done
     else
         echo "$i: $trait exists"
     fi
